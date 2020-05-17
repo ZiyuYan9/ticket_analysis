@@ -8,6 +8,7 @@ import sys
 from itertools import chain
 import numpy as np
 import statsmodels.api as sm
+from pyspark.sql.functions import broadcast
 
 # get key by searching the value
 def get_key (dict, value):
@@ -150,10 +151,10 @@ if __name__ == "__main__":
     cscl = 'hdfs:///tmp/bdm/nyc_cscl.csv'
     cscl_info = sc.textFile(cscl, use_unicode=True)
     
-    ticket_data = ticket_info.mapPartitionsWithIndex(processTicket)
-    cscl_data = cscl_info.mapPartitionsWithIndex(processCSCL)
+    ticket_data = ticket_info.mapPartitionsWithIndex(processTicket).collect()
+    cscl_data = cscl_info.mapPartitionsWithIndex(processCSCL).collect()
     
-    physical_id = cscl_info.mapPartitionsWithIndex(extractID)
+    physical_id = cscl_info.mapPartitionsWithIndex(extractID).collect()
     
     ticket_format = spark.createDataFrame(ticket_data, ('year', 'county', 'street', 'real_house_number', 'if_odd_left'))
     cscl_format = spark.createDataFrame(cscl_data, ('ID', 'county', 'street', 'low', 'high', 'if_odd_left'))
@@ -164,7 +165,8 @@ if __name__ == "__main__":
              (ticket_format.real_house_number >= cscl_format.low) & (ticket_format.real_house_number <= cscl_format.high),
              ticket_format.if_odd_left == cscl_format.if_odd_left]
     
-    total_data = ticket_format.join(cscl_format, conditions, how='inner')
+    total_data = cscl_format.join(ticket_format, conditions, how='inner')
+    
     # get the size of matched tickets
     print(len(total_data.collect()))
     
