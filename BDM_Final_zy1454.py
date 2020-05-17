@@ -153,6 +153,8 @@ if __name__ == "__main__":
     ticket_data = ticket_info.mapPartitionsWithIndex(processTicket)
     cscl_data = cscl_info.mapPartitionsWithIndex(processCSCL)
     
+    physical_id = cscl_info.mapPartitionsWithIndex(extractID)
+    
     ticket_format = spark.createDataFrame(ticket_data, ('year', 'county', 'street', 'real_house_number', 'if_odd_left'))
     cscl_format = spark.createDataFrame(cscl_data, ('ID', 'county', 'street', 'low', 'high', 'if_odd_left'))
     id_format = spark.createDataFrame(physical_id, ('Physical_ID', 'nothing')).drop('nothing')
