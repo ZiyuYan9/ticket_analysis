@@ -165,7 +165,7 @@ if __name__ == "__main__":
              (ticket_format.real_house_number >= cscl_format.low) & (ticket_format.real_house_number <= cscl_format.high),
              ticket_format.if_odd_left == cscl_format.if_odd_left]
     
-    total_data = cscl_format.join(ticket_format, conditions, how='inner')
+    total_data = cscl_format.join(broadcast(ticket_format), conditions, how='inner')
     
     # get the size of matched tickets
     print(len(total_data.collect()))
