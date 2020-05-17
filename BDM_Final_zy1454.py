@@ -144,10 +144,10 @@ if __name__ == "__main__":
     sc = SparkContext()
     spark = SparkSession(sc)
     
-    ticket = 'hdfs:///tmp/bdm/nyc_cscl.csv'
+    ticket = 'hdfs:///tmp/bdm/nyc_parking_violation/'
     ticket_info = sc.textFile(ticket, use_unicode=True)
     
-    cscl = 'hdfs:///tmp/bdm/nyc_parking_violation/'
+    cscl = 'hdfs:///tmp/bdm/nyc_cscl.csv'
     cscl_info = sc.textFile(cscl, use_unicode=True)
     
     ticket_data = ticket_info.mapPartitionsWithIndex(processTicket)
