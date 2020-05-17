@@ -107,15 +107,15 @@ def processCSCL(index, record):
             yield (ID, county, street, row[2], row[3], 1.0)
             yield (ID, county, street, row[4], row[5], 0.0)
             
-def extractID(index, record):
-    if index==0:
-        next(record)
+#def extractID(index, record):
+#    if index==0:
+#        next(record)
         
-    reader = csv.reader(record)
+#    reader = csv.reader(record)
     
-    for row in reader:
+#    for row in reader:
         # get a full list of the physical ID
-        yield (int(row[0]), 'id')
+#       yield (int(row[0]), 'id')
         
 def addZero(index, record):
     for row in record:
@@ -154,11 +154,11 @@ if __name__ == "__main__":
     ticket_data = ticket_info.mapPartitionsWithIndex(processTicket)
     cscl_data = cscl_info.mapPartitionsWithIndex(processCSCL)
     
-    physical_id = cscl_info.mapPartitionsWithIndex(extractID)
+#    physical_id = cscl_info.mapPartitionsWithIndex(extractID)
     
     ticket_format = spark.createDataFrame(ticket_data, ('year', 'county', 'street', 'real_house_number', 'if_odd_left'))
     cscl_format = spark.createDataFrame(cscl_data, ('ID', 'county', 'street', 'low', 'high', 'if_odd_left'))
-    id_format = spark.createDataFrame(physical_id, ('Physical_ID', 'nothing')).drop('nothing')
+#    id_format = spark.createDataFrame(physical_id, ('Physical_ID', 'nothing')).drop('nothing')
     
     conditions = [ticket_format.county == cscl_format.county,
              (ticket_format.street == cscl_format.street[0]) | (ticket_format.street == cscl_format.street[1]), 
@@ -171,9 +171,9 @@ if __name__ == "__main__":
     print(len(total_data.collect()))
     
     data_with_value = total_data.groupBy([cscl_format.ID, ticket_format.year]).count()
-    data_with_full_ID = id_format.join(data_with_value, id_format.Physical_ID == data_with_value.ID, how='left').drop('ID')
+#    data_with_full_ID = id_format.join(data_with_value, id_format.Physical_ID == data_with_value.ID, how='left').drop('ID')
     
-    data_with_full_ID.rdd.map(lambda x: (x[0], x[1], x[2])).mapPartitionsWithIndex(addZero)         .reduceByKey(lambda x,y: (x[0]+y[0], x[1]+y[1], x[2]+y[2], x[3]+y[3], x[4]+y[4]))         .sortByKey()         .mapValues(lambda y: list(y)+[calculateCOEF(y)])         .map(lambda x: (x[0], x[1][0], x[1][1], x[1][2], x[1][3], x[1][4], x[1][5]))         .saveAsTextFile(output)
+    data_with_value.rdd.map(lambda x: (x[0], x[1], x[2])).mapPartitionsWithIndex(addZero)         .reduceByKey(lambda x,y: (x[0]+y[0], x[1]+y[1], x[2]+y[2], x[3]+y[3], x[4]+y[4]))         .sortByKey()         .mapValues(lambda y: list(y)+[calculateCOEF(y)])         .map(lambda x: (x[0], x[1][0], x[1][1], x[1][2], x[1][3], x[1][4], x[1][5]))         .saveAsTextFile(output)
 
 
 
