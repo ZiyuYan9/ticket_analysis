@@ -173,7 +173,7 @@ if __name__ == "__main__":
     data_with_value = total_data.groupBy([cscl_format.ID, ticket_format.year]).count()
     data_with_full_ID = id_format.join(data_with_value, id_format.Physical_ID == data_with_value.ID, how='left').drop('ID')
     
-    data_with_value.rdd.map(lambda x: (x[0], x[1], x[2])).mapPartitionsWithIndex(addZero)         .reduceByKey(lambda x,y: (x[0]+y[0], x[1]+y[1], x[2]+y[2], x[3]+y[3], x[4]+y[4]))         .sortByKey()         .mapValues(lambda y: list(y)+[calculateCOEF(y)])         .map(lambda x: (x[0], x[1][0], x[1][1], x[1][2], x[1][3], x[1][4], x[1][5]))         .saveAsTextFile(output)
+    data_with_full_ID.rdd.map(lambda x: (x[0], x[1], x[2])).mapPartitionsWithIndex(addZero)         .reduceByKey(lambda x,y: (x[0]+y[0], x[1]+y[1], x[2]+y[2], x[3]+y[3], x[4]+y[4]))         .sortByKey()         .mapValues(lambda y: list(y)+[calculateCOEF(y)])         .map(lambda x: (x[0], x[1][0], x[1][1], x[1][2], x[1][3], x[1][4], x[1][5]))         .saveAsTextFile(output)
 
 
 
