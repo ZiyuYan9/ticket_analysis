@@ -151,10 +151,10 @@ if __name__ == "__main__":
     cscl = 'hdfs:///tmp/bdm/nyc_cscl.csv'
     cscl_info = sc.textFile(cscl, use_unicode=True)
     
-    ticket_data = ticket_info.mapPartitionsWithIndex(processTicket).collect()
-    cscl_data = cscl_info.mapPartitionsWithIndex(processCSCL).collect()
+    ticket_data = ticket_info.mapPartitionsWithIndex(processTicket)
+    cscl_data = cscl_info.mapPartitionsWithIndex(processCSCL)
     
-    physical_id = cscl_info.mapPartitionsWithIndex(extractID).collect()
+    physical_id = cscl_info.mapPartitionsWithIndex(extractID)
     
     ticket_format = spark.createDataFrame(ticket_data, ('year', 'county', 'street', 'real_house_number', 'if_odd_left'))
     cscl_format = spark.createDataFrame(cscl_data, ('ID', 'county', 'street', 'low', 'high', 'if_odd_left'))
